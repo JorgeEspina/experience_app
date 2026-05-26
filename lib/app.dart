@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'features/onboarding/presentation/onboarding_intro_screen.dart';
+import 'features/onboarding/presentation/views/onboarding_view.dart';
 
 class ExperienceApp extends StatelessWidget {
   const ExperienceApp({super.key});
@@ -15,7 +15,7 @@ class ExperienceApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFFF3F4F7),
         useMaterial3: true,
       ),
-      home: const OnboardingIntroScreen(),
+      home: const OnboardingView(),
     );
   }
 }

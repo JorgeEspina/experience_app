@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../application/onboarding_controller.dart';
-import '../domain/subscription_plan.dart';
+import '../state/onboarding_controller.dart';
+import '../../domain/entities/subscription_plan.dart';
+import '../../../shop/presentation/views/explore_view.dart';
 
 class OnboardingSubscriptionScreen extends ConsumerWidget {
   const OnboardingSubscriptionScreen({super.key});
@@ -59,7 +60,10 @@ class OnboardingSubscriptionScreen extends ConsumerWidget {
                   children: [
                     Text(
                       'You\'ll get:',
-                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     SizedBox(height: 14),
                     _BenefitRow(text: 'Unlimited access'),
@@ -85,12 +89,11 @@ class OnboardingSubscriptionScreen extends ConsumerWidget {
                       return;
                     }
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Subscribed to ${selectedPlan.title} (${selectedPlan.price}).',
-                        ),
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const ExploreView(),
                       ),
+                      (route) => false,
                     );
                   },
                   style: FilledButton.styleFrom(
@@ -140,7 +143,8 @@ class _PlanTile extends StatelessWidget {
           children: [
             Icon(
               selected ? Icons.radio_button_checked : Icons.radio_button_off,
-              color: selected ? const Color(0xFF1E6EF2) : const Color(0xFFBCC2CC),
+              color:
+                  selected ? const Color(0xFF1E6EF2) : const Color(0xFFBCC2CC),
               size: 20,
             ),
             const SizedBox(width: 10),

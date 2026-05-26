@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../application/onboarding_controller.dart';
-import '../domain/interest_topic.dart';
+import '../state/onboarding_controller.dart';
+import '../../domain/entities/interest_topic.dart';
 import 'onboarding_subscription_screen.dart';
 
 class OnboardingInterestsScreen extends ConsumerWidget {
@@ -48,7 +48,7 @@ class OnboardingInterestsScreen extends ConsumerWidget {
               Expanded(
                 child: ListView.separated(
                   itemCount: InterestTopic.values.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 10),
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final topic = InterestTopic.values[index];
                     final isSelected = state.selectedTopics.contains(topic);
@@ -107,7 +107,9 @@ class OnboardingInterestsScreen extends ConsumerWidget {
                     if (state.selectedTopics.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Select at least one interest to continue.'),
+                          content: Text(
+                            'Select at least one interest to continue.',
+                          ),
                         ),
                       );
                       return;

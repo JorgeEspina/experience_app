@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../application/onboarding_controller.dart';
+import '../state/onboarding_controller.dart';
 import 'onboarding_interests_screen.dart';
 
-class OnboardingIntroScreen extends ConsumerStatefulWidget {
-  const OnboardingIntroScreen({super.key});
+class OnboardingView extends ConsumerStatefulWidget {
+  const OnboardingView({super.key});
 
   @override
-  ConsumerState<OnboardingIntroScreen> createState() =>
-      _OnboardingIntroScreenState();
+  ConsumerState<OnboardingView> createState() => _OnboardingViewState();
 }
 
-class _OnboardingIntroScreenState extends ConsumerState<OnboardingIntroScreen> {
+class _OnboardingViewState extends ConsumerState<OnboardingView> {
   late final PageController _pageController;
   int _currentIndex = 0;
 
@@ -102,7 +101,10 @@ class _OnboardingIntroScreenState extends ConsumerState<OnboardingIntroScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 8),
-                    _PageDots(currentIndex: _currentIndex, total: _slides.length),
+                    _PageDots(
+                      currentIndex: _currentIndex,
+                      total: _slides.length,
+                    ),
                     const SizedBox(height: 14),
                     Text(
                       slide.title,
@@ -195,7 +197,8 @@ class _PageDots extends StatelessWidget {
           height: 8,
           margin: const EdgeInsets.only(right: 8),
           decoration: BoxDecoration(
-            color: selected ? const Color(0xFF1E6EF2) : const Color(0xFFD5D8DE),
+            color:
+                selected ? const Color(0xFF1E6EF2) : const Color(0xFFD5D8DE),
             shape: BoxShape.circle,
           ),
         );
