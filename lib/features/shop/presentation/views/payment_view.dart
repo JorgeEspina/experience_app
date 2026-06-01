@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:experience_app/system_design/widgets/app_filled_button.dart';
 import '../state/shop_providers.dart';
 import '../widgets/payment_card_tile.dart';
+import '../widgets/add_card_bottom_sheet.dart';
 
 class PaymentView extends ConsumerStatefulWidget {
   const PaymentView({super.key});
@@ -180,7 +181,18 @@ class _PaymentViewState extends ConsumerState<PaymentView> {
                         // Add new card
                         Center(
                           child: TextButton.icon(
-                            onPressed: () => _showAddCardSheet(context),
+                            onPressed: () {
+                              AddCardBottomSheet.show(
+                                context,
+                                onCardAdded: (holder, number, expiry, cvv) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Card added: $holder'),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
                             icon: const Icon(
                               Icons.add,
                               size: 18,
@@ -315,160 +327,6 @@ class _PaymentViewState extends ConsumerState<PaymentView> {
     );
   }
 
-  void _showAddCardSheet(BuildContext context) {
-    final cardNumberController = TextEditingController();
-    final holderController = TextEditingController();
-    final expiryController = TextEditingController();
-    final cvvController = TextEditingController();
-
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 20,
-            right: 20,
-            top: 24,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD1D5DB),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Add new card',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1E2229),
-                ),
-              ),
-              const SizedBox(height: 20),
-              _CardTextField(
-                controller: holderController,
-                label: 'Card holder name',
-                hint: 'John Doe',
-              ),
-              const SizedBox(height: 14),
-              _CardTextField(
-                controller: cardNumberController,
-                label: 'Card number',
-                hint: '0000 0000 0000 0000',
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 14),
-              Row(
-                children: [
-                  Expanded(
-                    child: _CardTextField(
-                      controller: expiryController,
-                      label: 'Expiry date',
-                      hint: 'MM/YY',
-                      keyboardType: TextInputType.datetime,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _CardTextField(
-                      controller: cvvController,
-                      label: 'CVV',
-                      hint: '123',
-                      keyboardType: TextInputType.number,
-                      obscure: true,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              AppFilledButton(
-                text: 'Add card',
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Card added!')),
-                  );
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _CardTextField extends StatelessWidget {
-  const _CardTextField({
-    required this.controller,
-    required this.label,
-    required this.hint,
-    this.keyboardType,
-    this.obscure = false,
-  });
-
-  final TextEditingController controller;
-  final String label;
-  final String hint;
-  final TextInputType? keyboardType;
-  final bool obscure;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF6B7280),
-          ),
-        ),
-        const SizedBox(height: 6),
-        TextField(
-          controller: controller,
-          keyboardType: keyboardType,
-          obscureText: obscure,
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: const TextStyle(color: Color(0xFFD1D5DB)),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 14,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF1E6EF2)),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 }
 
 class _StepIndicator extends StatelessWidget {
