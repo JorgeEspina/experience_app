@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:experience_app/app_colors.dart';
+import 'package:experience_app/core/local_storage.dart';
 import 'package:experience_app/features/onboarding/presentation/views/onboarding_view.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await LocalStorage().init();
   runApp(const ProviderScope(child: MainApp()));
 }
 

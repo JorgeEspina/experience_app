@@ -2,7 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:experience_app/features/onboarding/presentation/views/onboarding_view.dart';
 import 'package:experience_app/features/shop/presentation/views/explore_view.dart';
 import 'package:experience_app/features/shop/presentation/views/cart_view.dart';
-import 'package:experience_app/features/shop/presentation/views/checkout_view.dart';
+import 'package:experience_app/features/shop/presentation/views/payment_view.dart';
 
 final router = GoRouter(
   routes: [
@@ -22,9 +22,9 @@ final router = GoRouter(
       builder: (context, state) => const CartView(),
     ),
     GoRoute(
-      name: Routes.checkout,
-      path: '/checkout',
-      builder: (context, state) => const CheckoutView(),
+      name: Routes.payment,
+      path: '/payment',
+      builder: (context, state) => const PaymentView(),
     ),
   ],
 );
@@ -33,5 +33,5 @@ abstract class Routes {
   static const String onboarding = 'onboarding';
   static const String explore = 'explore';
   static const String cart = 'cart';
-  static const String checkout = 'checkout';
+  static const String payment = 'payment';
 }

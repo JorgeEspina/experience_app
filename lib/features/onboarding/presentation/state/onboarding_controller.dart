@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/entities/interest_topic.dart';
 import '../../domain/entities/subscription_plan.dart';
+import 'onboarding_providers.dart';
 import 'onboarding_state.dart';
 
 class OnboardingController extends Notifier<OnboardingState> {
@@ -23,9 +24,20 @@ class OnboardingController extends Notifier<OnboardingState> {
   void selectPlan(SubscriptionPlan plan) {
     state = state.copyWith(selectedPlan: plan);
   }
-}
 
-final onboardingControllerProvider =
-    NotifierProvider<OnboardingController, OnboardingState>(
-  OnboardingController.new,
-);
+  Future<void> saveTopics() async {
+    final saveTopics = ref.read(saveSelectedTopicsUseCaseProvider);
+    await saveTopics(state.selectedTopics);
+  }
+
+  Future<void> subscribe() async {
+    final plan = state.selectedPlan;
+    if (plan == null) return;
+
+    final savePlan = ref.read(saveSelectedPlanUseCaseProvider);
+    final completeOnboarding = ref.read(completeOnboardingUseCaseProvider);
+
+    await savePlan(plan);
+    await completeOnboarding();
+  }
+}

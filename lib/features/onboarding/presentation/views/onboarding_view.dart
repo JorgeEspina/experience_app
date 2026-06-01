@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../state/onboarding_controller.dart';
+import '../state/onboarding_providers.dart';
 import 'onboarding_interests_screen.dart';
 
 class OnboardingView extends ConsumerStatefulWidget {

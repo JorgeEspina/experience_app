@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../state/onboarding_controller.dart';
+import '../state/onboarding_providers.dart';
 import '../../domain/entities/subscription_plan.dart';
 import '../../../shop/presentation/views/explore_view.dart';
 

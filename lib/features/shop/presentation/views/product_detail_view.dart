@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:experience_app/system_design/widgets/app_filled_button.dart';
+import 'package:experience_app/system_design/widgets/app_network_image.dart';
+
 import '../../domain/entities/product.dart';
-import '../state/shop_controller.dart';
+import '../state/shop_providers.dart';
 
 class ProductDetailView extends ConsumerStatefulWidget {
   const ProductDetailView({super.key, required this.product});
@@ -50,21 +53,13 @@ class _ProductDetailViewState extends ConsumerState<ProductDetailView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Product image placeholder
-                    Container(
+                    // Product image
+                    AppNetworkImage(
+                      imageUrl: product.imageUrl,
                       width: double.infinity,
                       height: 200,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF0F1F5),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.image_outlined,
-                          size: 60,
-                          color: Color(0xFFB0B7C3),
-                        ),
-                      ),
+                      borderRadius: 16,
+                      placeholderIconSize: 60,
                     ),
                     const SizedBox(height: 20),
                     // Title and favorite
@@ -208,34 +203,24 @@ class _ProductDetailViewState extends ConsumerState<ProductDetailView> {
             // Add to bag button
             Padding(
               padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: () {
-                    final controller =
-                        ref.read(shopControllerProvider.notifier);
-                    controller.addToCart(
-                      product,
-                      product.sizes[_selectedSizeIndex],
-                      'Color ${_selectedColorIndex + 1}',
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('${product.name} added to bag'),
-                        duration: const Duration(seconds: 1),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add to bag'),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFF1E6EF2),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+              child: AppFilledButton(
+                text: 'Add to bag',
+                icon: Icons.add,
+                onPressed: () {
+                  final controller =
+                      ref.read(shopControllerProvider.notifier);
+                  controller.addToCart(
+                    product,
+                    product.sizes[_selectedSizeIndex],
+                    'Color ${_selectedColorIndex + 1}',
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${product.name} added to bag'),
+                      duration: const Duration(seconds: 1),
                     ),
-                    minimumSize: const Size.fromHeight(56),
-                  ),
-                ),
+                  );
+                },
               ),
             ),
           ],

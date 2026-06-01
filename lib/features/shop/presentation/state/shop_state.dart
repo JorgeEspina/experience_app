@@ -1,21 +1,25 @@
 import '../../domain/entities/cart_item.dart';
-import '../../domain/entities/payment_method.dart';
+import '../../domain/entities/payment_card.dart';
 import '../../domain/entities/product.dart';
 
 class ShopState {
   const ShopState({
     this.products = const [],
     this.cartItems = const [],
-    this.paymentMethods = const [],
-    this.selectedPaymentIndex = 0,
+    this.cards = const [],
+    this.selectedCardIndex = 0,
     this.billingEqualsShipping = true,
+    this.isLoadingCards = false,
+    this.cardsError,
   });
 
   final List<Product> products;
   final List<CartItem> cartItems;
-  final List<PaymentMethod> paymentMethods;
-  final int selectedPaymentIndex;
+  final List<PaymentCard> cards;
+  final int selectedCardIndex;
   final bool billingEqualsShipping;
+  final bool isLoadingCards;
+  final String? cardsError;
 
   double get cartTotal =>
       cartItems.fold(0, (sum, item) => sum + item.totalPrice);
@@ -23,20 +27,29 @@ class ShopState {
   int get cartItemCount =>
       cartItems.fold(0, (sum, item) => sum + item.quantity);
 
+  PaymentCard? get selectedCard =>
+      cards.isNotEmpty && selectedCardIndex < cards.length
+          ? cards[selectedCardIndex]
+          : null;
+
   ShopState copyWith({
     List<Product>? products,
     List<CartItem>? cartItems,
-    List<PaymentMethod>? paymentMethods,
-    int? selectedPaymentIndex,
+    List<PaymentCard>? cards,
+    int? selectedCardIndex,
     bool? billingEqualsShipping,
+    bool? isLoadingCards,
+    String? cardsError,
   }) {
     return ShopState(
       products: products ?? this.products,
       cartItems: cartItems ?? this.cartItems,
-      paymentMethods: paymentMethods ?? this.paymentMethods,
-      selectedPaymentIndex: selectedPaymentIndex ?? this.selectedPaymentIndex,
+      cards: cards ?? this.cards,
+      selectedCardIndex: selectedCardIndex ?? this.selectedCardIndex,
       billingEqualsShipping:
           billingEqualsShipping ?? this.billingEqualsShipping,
+      isLoadingCards: isLoadingCards ?? this.isLoadingCards,
+      cardsError: cardsError,
     );
   }
 }

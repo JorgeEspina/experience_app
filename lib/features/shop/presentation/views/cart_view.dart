@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../state/shop_controller.dart';
-import 'checkout_view.dart';
+import 'package:experience_app/system_design/widgets/app_filled_button.dart';
+import 'package:experience_app/system_design/widgets/app_network_image.dart';
+import 'package:experience_app/system_design/widgets/quantity_button.dart';
+
+import '../state/shop_providers.dart';
+import 'payment_view.dart';
 
 class CartView extends ConsumerWidget {
   const CartView({super.key});
@@ -50,20 +54,12 @@ class CartView extends ConsumerWidget {
                       return Row(
                         children: [
                           // Product image
-                          Container(
+                          AppNetworkImage(
+                            imageUrl: item.product.imageUrl,
                             width: 64,
                             height: 64,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF0F1F5),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.image_outlined,
-                                size: 28,
-                                color: Color(0xFFB0B7C3),
-                              ),
-                            ),
+                            borderRadius: 10,
+                            placeholderIconSize: 28,
                           ),
                           const SizedBox(width: 12),
                           // Product info
@@ -91,7 +87,7 @@ class CartView extends ConsumerWidget {
                                 // Quantity controls
                                 Row(
                                   children: [
-                                    _QuantityButton(
+                                    QuantityButton(
                                       icon: Icons.remove,
                                       onTap: () =>
                                           controller.decrementQuantity(index),
@@ -108,7 +104,7 @@ class CartView extends ConsumerWidget {
                                         ),
                                       ),
                                     ),
-                                    _QuantityButton(
+                                    QuantityButton(
                                       icon: Icons.add,
                                       onTap: () =>
                                           controller.incrementQuantity(index),
@@ -164,25 +160,15 @@ class CartView extends ConsumerWidget {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                builder: (_) => const CheckoutView(),
-                              ),
-                            );
-                          },
-                          style: FilledButton.styleFrom(
-                            backgroundColor: const Color(0xFF1E6EF2),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
+                      AppFilledButton(
+                        text: 'Checkout',
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => const PaymentView(),
                             ),
-                            minimumSize: const Size.fromHeight(56),
-                          ),
-                          child: const Text('Checkout'),
-                        ),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -193,25 +179,4 @@ class CartView extends ConsumerWidget {
   }
 }
 
-class _QuantityButton extends StatelessWidget {
-  const _QuantityButton({required this.icon, required this.onTap});
 
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 28,
-        height: 28,
-        decoration: BoxDecoration(
-          color: const Color(0xFFF3F4F6),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Icon(icon, size: 16, color: const Color(0xFF1E6EF2)),
-      ),
-    );
-  }
-}
