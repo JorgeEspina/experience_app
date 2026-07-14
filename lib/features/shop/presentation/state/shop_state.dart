@@ -1,4 +1,5 @@
 import '../../domain/entities/cart_item.dart';
+import '../../domain/entities/payment_result.dart';
 import '../../domain/entities/payment_card.dart';
 import '../../domain/entities/product.dart';
 
@@ -11,6 +12,8 @@ class ShopState {
     this.billingEqualsShipping = true,
     this.isLoadingCards = false,
     this.cardsError,
+    this.isProcessingPayment = false,
+    this.paymentResult,
   });
 
   final List<Product> products;
@@ -20,6 +23,8 @@ class ShopState {
   final bool billingEqualsShipping;
   final bool isLoadingCards;
   final String? cardsError;
+  final bool isProcessingPayment;
+  final PaymentResult? paymentResult;
 
   double get cartTotal =>
       cartItems.fold(0, (sum, item) => sum + item.totalPrice);
@@ -40,6 +45,8 @@ class ShopState {
     bool? billingEqualsShipping,
     bool? isLoadingCards,
     String? cardsError,
+    bool? isProcessingPayment,
+    PaymentResult? paymentResult,
   }) {
     return ShopState(
       products: products ?? this.products,
@@ -50,6 +57,8 @@ class ShopState {
           billingEqualsShipping ?? this.billingEqualsShipping,
       isLoadingCards: isLoadingCards ?? this.isLoadingCards,
       cardsError: cardsError,
+      isProcessingPayment: isProcessingPayment ?? this.isProcessingPayment,
+      paymentResult: paymentResult,
     );
   }
 }

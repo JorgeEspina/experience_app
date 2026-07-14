@@ -67,6 +67,26 @@ class ShopController extends Notifier<ShopState> {
     );
   }
 
+  Future<void> processPayment() async {
+    final card = state.selectedCard;
+    if (card == null) return;
+
+    state = state.copyWith(isProcessingPayment: true, paymentResult: null);
+    try {
+      final processPayment = ref.read(processPaymentUseCaseProvider);
+      final result = await processPayment(
+        amount: state.cartTotal,
+        cardNumber: card.number,
+      );
+      state = state.copyWith(
+        isProcessingPayment: false,
+        paymentResult: result,
+      );
+    } catch (e) {
+      state = state.copyWith(isProcessingPayment: false);
+    }
+  }
+
   Future<void> _refreshCart() async {
     final cartRepo = ref.read(cartRepositoryProvider);
     final items = await cartRepo.getCartItems();

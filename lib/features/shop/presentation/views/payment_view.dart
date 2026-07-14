@@ -298,28 +298,84 @@ class _PaymentViewState extends ConsumerState<PaymentView> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: AppFilledButton(
-              text: 'Process Payment',
-              onPressed: () {
-                if (_useApplePay) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Processing with Apple Pay...')),
-                  );
-                  return;
-                }
-                final card = state.selectedCard;
-                if (card != null && card.isDeclined) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Card declined: ${card.declineReason}'),
-                      backgroundColor: Colors.red[600],
-                    ),
-                  );
-                  return;
-                }
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Payment processed successfully!')),
-                );
-              },
+              text: state.isProcessingPayment ? 'Processing...' : 'Process Payment',
+              onPressed: (state.cards.isEmpty || state.isProcessingPayment)
+                  ? null
+                  : () async {
+                      if (_useApplePay) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Processing with Apple Pay...')),
+                        );
+                        return;
+                      }
+
+                      await controller.processPayment();
+                      if (!context.mounted) return;
+
+                      final result = ref.read(shopControllerProvider).paymentResult;
+                      if (result == null) return;
+
+                      if (result.approved) {
+                        showDialog<void>(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            title: const Row(
+                              children: [
+                                Icon(Icons.check_circle, color: Color(0xFF16A34A), size: 28),
+                                SizedBox(width: 10),
+                                Text('Payment Approved'),
+                              ],
+                            ),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(result.message),
+                                if (result.remainingBalance != null) ...[
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Remaining balance: € ${result.remainingBalance!.toStringAsFixed(2)}',
+                                    style: const TextStyle(color: Color(0xFF6B7280)),
+                                  ),
+                                ],
+                              ],
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        );
+                      } else {
+                        showDialog<void>(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            title: const Row(
+                              children: [
+                                Icon(Icons.cancel, color: Color(0xFFDC2626), size: 28),
+                                SizedBox(width: 10),
+                                Text('Payment Declined'),
+                              ],
+                            ),
+                            content: Text(result.message),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                    },
             ),
           ),
         ],
