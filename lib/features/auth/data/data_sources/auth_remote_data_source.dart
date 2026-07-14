@@ -1,21 +1,33 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import '../models/user_model.dart';
 
+/// Data source for authentication.
+/// Currently uses mock data. Replace with Firebase when configured:
+/// - Import 'package:firebase_auth/firebase_auth.dart'
+/// - Use FirebaseAuth.instance methods
 class AuthRemoteDataSource {
-  AuthRemoteDataSource({FirebaseAuth? firebaseAuth})
-      : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
-
-  final FirebaseAuth _firebaseAuth;
-
   Future<UserModel> login({
     required String email,
     required String password,
   }) async {
-    final credential = await _firebaseAuth.signInWithEmailAndPassword(
+    // TODO: Replace with Firebase Auth when configured
+    // final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+    //   email: email, password: password,
+    // );
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    if (email.isEmpty || password.isEmpty) {
+      throw Exception('Email and password are required');
+    }
+
+    if (password.length < 6) {
+      throw Exception('weak-password');
+    }
+
+    return UserModel(
+      id: 'user_${email.hashCode}',
+      name: email.split('@').first,
       email: email,
-      password: password,
     );
-    return _userFromCredential(credential);
   }
 
   Future<UserModel> register({
@@ -23,34 +35,34 @@ class AuthRemoteDataSource {
     required String email,
     required String password,
   }) async {
-    final credential = await _firebaseAuth.createUserWithEmailAndPassword(
+    // TODO: Replace with Firebase Auth when configured
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+      throw Exception('All fields are required');
+    }
+
+    if (password.length < 6) {
+      throw Exception('weak-password');
+    }
+
+    if (!email.contains('@')) {
+      throw Exception('invalid-email');
+    }
+
+    return UserModel(
+      id: 'user_${email.hashCode}',
+      name: name,
       email: email,
-      password: password,
     );
-    await credential.user?.updateDisplayName(name);
-    return _userFromCredential(credential);
   }
 
   Future<void> logout() async {
-    await _firebaseAuth.signOut();
+    // TODO: await FirebaseAuth.instance.signOut();
   }
 
   Future<UserModel?> getCurrentUser() async {
-    final user = _firebaseAuth.currentUser;
-    if (user == null) return null;
-    return UserModel(
-      id: user.uid,
-      name: user.displayName ?? '',
-      email: user.email ?? '',
-    );
-  }
-
-  UserModel _userFromCredential(UserCredential credential) {
-    final user = credential.user!;
-    return UserModel(
-      id: user.uid,
-      name: user.displayName ?? '',
-      email: user.email ?? '',
-    );
+    // TODO: Check FirebaseAuth.instance.currentUser
+    return null;
   }
 }

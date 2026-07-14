@@ -5,12 +5,14 @@ import 'package:experience_app/system_design/widgets/app_network_image.dart';
 import 'package:experience_app/system_design/widgets/cart_badge_icon.dart';
 import 'package:experience_app/system_design/widgets/page_dots_indicator.dart';
 import 'package:experience_app/system_design/widgets/section_header.dart';
+import 'package:experience_app/features/home/presentation/views/home_view.dart';
 
 import '../../domain/entities/product.dart';
 import '../state/shop_providers.dart';
 import '../widgets/product_card.dart';
 import 'product_detail_view.dart';
 import 'cart_view.dart';
+import 'profile_view.dart';
 
 class ExploreView extends ConsumerStatefulWidget {
   const ExploreView({super.key});
@@ -58,7 +60,12 @@ class _ExploreViewState extends ConsumerState<ExploreView> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  const Icon(Icons.search, size: 26),
+                  IconButton(
+                    onPressed: _goBackToMenu,
+                    icon: const Icon(Icons.arrow_back_ios_new, size: 22),
+                    splashRadius: 20,
+                    tooltip: 'Back',
+                  ),
                   const Spacer(),
                   const Icon(Icons.favorite_border, size: 26),
                   const SizedBox(width: 16),
@@ -168,7 +175,7 @@ class _ExploreViewState extends ConsumerState<ExploreView> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentNavIndex,
-        onTap: (index) => setState(() => _currentNavIndex = index),
+        onTap: _onBottomNavTap,
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
         selectedItemColor: const Color(0xFF1E6EF2),
@@ -203,5 +210,30 @@ class _ExploreViewState extends ConsumerState<ExploreView> {
         builder: (_) => ProductDetailView(product: product),
       ),
     );
+  }
+
+  void _goBackToMenu() {
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+      return;
+    }
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(
+        builder: (_) => const HomeView(),
+      ),
+    );
+  }
+
+  void _onBottomNavTap(int index) {
+    setState(() => _currentNavIndex = index);
+
+    if (index == 3) {
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => const ProfileView(),
+        ),
+      );
+    }
   }
 }
