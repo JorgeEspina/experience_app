@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/data_sources/auth_remote_data_source.dart';
@@ -9,9 +10,16 @@ import '../../domain/use_cases/register_use_case.dart';
 import 'auth_controller.dart';
 import 'auth_state.dart';
 
+// Firebase
+final firebaseAuthProvider = Provider<FirebaseAuth>(
+  (ref) => FirebaseAuth.instance,
+);
+
 // Data Sources
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>(
-  (ref) => AuthRemoteDataSource(),
+  (ref) => AuthRemoteDataSource(
+    firebaseAuth: ref.read(firebaseAuthProvider),
+  ),
 );
 
 // Repositories
