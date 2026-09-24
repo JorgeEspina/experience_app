@@ -1,15 +1,21 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/user_model.dart';
+import 'user_profile_remote_data_source.dart';
 
 /// Data source for authentication backed by Firebase Auth.
 ///
-/// [FirebaseAuth] is injected so it can be replaced with a mock in tests.
+/// The user role is stored in Firestore (`users/{uid}`) via
+/// [UserProfileRemoteDataSource]. [FirebaseAuth] is injected so it can be
+/// replaced with a mock in tests.
 class AuthRemoteDataSource {
-  AuthRemoteDataSource({FirebaseAuth? firebaseAuth})
-      : _auth = firebaseAuth ?? FirebaseAuth.instance;
+  AuthRemoteDataSource({
+    FirebaseAuth? firebaseAuth,
+    required this.userProfile,
+  }) : _auth = firebaseAuth ?? FirebaseAuth.instance;
 
   final FirebaseAuth _auth;
+  final UserProfileRemoteDataSource userProfile;
 
   Future<UserModel> login({
     required String email,
@@ -19,7 +25,20 @@ class AuthRemoteDataSource {
       email: email,
       password: password,
     );
-    return _mapUser(credential.user);
+
+    // Ensure a Firestore profile exists (for users created before profiles
+    // were introduced). Never overwrites an existing doc, so an admin role
+    // set in the console is preserved.
+    final user = credential.user;
+    if (user != null) {
+      await userProfile.ensureProfile(
+        uid: user.uid,
+        name: user.displayName ?? (user.email?.split('@').first ?? 'User'),
+        email: user.email ?? email,
+      );
+    }
+
+    return await _mapUser(user);
   }
 
   Future<UserModel> register({
@@ -37,7 +56,17 @@ class AuthRemoteDataSource {
     await credential.user?.reload();
 
     final user = _auth.currentUser ?? credential.user;
-    return _mapUser(user, fallbackName: name);
+
+    // Create the Firestore profile with the default "client" role.
+    if (user != null) {
+      await userProfile.ensureProfile(
+        uid: user.uid,
+        name: name,
+        email: user.email ?? email,
+      );
+    }
+
+    return await _mapUser(user, fallbackName: name, role: 'client');
   }
 
   Future<void> logout() async {
@@ -47,11 +76,16 @@ class AuthRemoteDataSource {
   Future<UserModel?> getCurrentUser() async {
     final user = _auth.currentUser;
     if (user == null) return null;
-    return _mapUser(user);
+    return await _mapUser(user);
   }
 
-  /// Maps a Firebase [User] into the app's [UserModel].
-  UserModel _mapUser(User? user, {String? fallbackName}) {
+  /// Maps a Firebase [User] into the app's [UserModel], reading the role from
+  /// Firestore when it isn't already known.
+  Future<UserModel> _mapUser(
+    User? user, {
+    String? fallbackName,
+    String? role,
+  }) async {
     if (user == null) {
       // Signals to AuthController._parseError as an invalid credential.
       throw FirebaseAuthException(
@@ -67,10 +101,13 @@ class AuthRemoteDataSource {
             ? fallbackName!
             : (email.isNotEmpty ? email.split('@').first : 'User');
 
+    final resolvedRole = role ?? await userProfile.getRole(user.uid);
+
     return UserModel(
       id: user.uid,
       name: name,
       email: email,
+      role: resolvedRole,
     );
   }
 }

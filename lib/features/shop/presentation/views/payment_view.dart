@@ -5,6 +5,7 @@ import 'package:experience_app/system_design/widgets/app_filled_button.dart';
 import '../state/shop_providers.dart';
 import '../widgets/payment_card_tile.dart';
 import '../widgets/add_card_bottom_sheet.dart';
+import 'payment_receipt_view.dart';
 
 class PaymentView extends ConsumerStatefulWidget {
   const PaymentView({super.key});
@@ -316,39 +317,11 @@ class _PaymentViewState extends ConsumerState<PaymentView> {
                       if (result == null) return;
 
                       if (result.approved) {
-                        showDialog<void>(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            title: const Row(
-                              children: [
-                                Icon(Icons.check_circle, color: Color(0xFF16A34A), size: 28),
-                                SizedBox(width: 10),
-                                Text('Payment Approved'),
-                              ],
-                            ),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(result.message),
-                                if (result.remainingBalance != null) ...[
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Remaining balance: € ${result.remainingBalance!.toStringAsFixed(2)}',
-                                    style: const TextStyle(color: Color(0xFF6B7280)),
-                                  ),
-                                ],
-                              ],
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                child: const Text('OK'),
-                              ),
-                            ],
+                        // Go to the receipt screen (with a "keep shopping"
+                        // button that returns to Home).
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => PaymentReceiptView(result: result),
                           ),
                         );
                       } else {
@@ -362,7 +335,7 @@ class _PaymentViewState extends ConsumerState<PaymentView> {
                               children: [
                                 Icon(Icons.cancel, color: Color(0xFFDC2626), size: 28),
                                 SizedBox(width: 10),
-                                Text('Payment Declined'),
+                                Text('Pago rechazado'),
                               ],
                             ),
                             content: Text(result.message),

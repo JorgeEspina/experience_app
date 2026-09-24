@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/data_sources/card_remote_data_source.dart';
 import '../../data/data_sources/cart_local_data_source.dart';
 import '../../data/data_sources/payment_remote_data_source.dart';
-import '../../data/data_sources/product_local_data_source.dart';
+import '../../data/data_sources/order_remote_data_source.dart';
+import '../../data/data_sources/product_remote_data_source.dart';
 import '../../data/repositories/card_repository_impl.dart';
+import '../../data/repositories/order_repository_impl.dart';
+import '../../domain/repositories/order_repository.dart';
 import '../../data/repositories/cart_repository_impl.dart';
 import '../../data/repositories/payment_repository_impl.dart';
 import '../../data/repositories/product_repository_impl.dart';
@@ -21,8 +24,12 @@ import 'shop_controller.dart';
 import 'shop_state.dart';
 
 // Data Sources
-final productLocalDataSourceProvider = Provider<ProductLocalDataSource>(
-  (ref) => ProductLocalDataSource(),
+final productRemoteDataSourceProvider = Provider<ProductRemoteDataSource>(
+  (ref) => ProductRemoteDataSource(),
+);
+
+final orderRemoteDataSourceProvider = Provider<OrderRemoteDataSource>(
+  (ref) => OrderRemoteDataSource(),
 );
 
 final cartLocalDataSourceProvider = Provider<CartLocalDataSource>(
@@ -40,13 +47,19 @@ final paymentRemoteDataSourceProvider = Provider<PaymentRemoteDataSource>(
 // Repositories
 final productRepositoryProvider = Provider<ProductRepository>(
   (ref) => ProductRepositoryImpl(
-    localDataSource: ref.read(productLocalDataSourceProvider),
+    remoteDataSource: ref.read(productRemoteDataSourceProvider),
   ),
 );
 
 final cartRepositoryProvider = Provider<CartRepository>(
   (ref) => CartRepositoryImpl(
     localDataSource: ref.read(cartLocalDataSourceProvider),
+  ),
+);
+
+final orderRepositoryProvider = Provider<OrderRepository>(
+  (ref) => OrderRepositoryImpl(
+    remoteDataSource: ref.read(orderRemoteDataSourceProvider),
   ),
 );
 

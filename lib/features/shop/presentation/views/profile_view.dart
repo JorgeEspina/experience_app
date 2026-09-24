@@ -5,6 +5,8 @@ import 'package:experience_app/features/auth/presentation/state/auth_providers.d
 import 'package:experience_app/features/auth/presentation/views/login_view.dart';
 import 'package:experience_app/system_design/widgets/app_filled_button.dart';
 
+import '../state/shop_providers.dart';
+
 class ProfileView extends ConsumerWidget {
   const ProfileView({super.key});
 
@@ -18,14 +20,33 @@ class ProfileView extends ConsumerWidget {
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 20),
-            const Text(
-              'Settings',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF1F2937),
-              ),
+            const SizedBox(height: 8),
+            // Top bar with a back button on the left and centered title.
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    onPressed: () => Navigator.of(context).maybePop(),
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new,
+                      size: 22,
+                      color: Color(0xFF1F2937),
+                    ),
+                    splashRadius: 20,
+                    tooltip: 'Regresar',
+                  ),
+                ),
+                const Text(
+                  'Settings',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1F2937),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 18),
             Stack(
@@ -150,6 +171,11 @@ class ProfileView extends ConsumerWidget {
   }
 
   Future<void> _logout(BuildContext context, WidgetRef ref) async {
+    // Clear per-user state so the next user starts fresh: empty the local
+    // cart and reset the shop controller (products/cart/orders in memory).
+    await ref.read(cartRepositoryProvider).clearCart();
+    ref.invalidate(shopControllerProvider);
+
     await ref.read(authControllerProvider.notifier).logout();
     if (!context.mounted) return;
 

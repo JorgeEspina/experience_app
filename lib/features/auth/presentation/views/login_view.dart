@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:experience_app/system_design/widgets/app_filled_button.dart';
 import 'package:experience_app/system_design/widgets/app_network_image.dart';
 import 'package:experience_app/features/home/presentation/views/home_view.dart';
+import 'package:experience_app/features/shop/presentation/views/explore_view.dart';
+import 'package:experience_app/core/notifications/push_notification_provider.dart';
 import '../state/auth_providers.dart';
 import '../widgets/auth_text_field.dart';
 import '../widgets/social_login_buttons.dart';
@@ -178,8 +180,21 @@ class _LoginViewState extends ConsumerState<LoginView> {
       password: _passwordController.text,
     );
     if (success && mounted) {
+      // Register this device for push notifications for the signed-in user.
+      final userId = ref.read(authControllerProvider).user?.id;
+      if (userId != null) {
+        await ref
+            .read(pushNotificationServiceProvider)
+            .registerTokenForUser(userId);
+      }
+
+      if (!mounted) return;
+      // Admins land on the module menu (Home); clients go straight to the shop.
+      final isAdmin = ref.read(authControllerProvider).user?.isAdmin ?? false;
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute<void>(builder: (_) => const HomeView()),
+        MaterialPageRoute<void>(
+          builder: (_) => isAdmin ? const HomeView() : const ExploreView(),
+        ),
         (route) => false,
       );
     }

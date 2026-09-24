@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/data_sources/auth_remote_data_source.dart';
+import '../../data/data_sources/user_profile_remote_data_source.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/use_cases/login_use_case.dart';
@@ -16,9 +17,15 @@ final firebaseAuthProvider = Provider<FirebaseAuth>(
 );
 
 // Data Sources
+final userProfileRemoteDataSourceProvider =
+    Provider<UserProfileRemoteDataSource>(
+  (ref) => UserProfileRemoteDataSource(),
+);
+
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>(
   (ref) => AuthRemoteDataSource(
     firebaseAuth: ref.read(firebaseAuthProvider),
+    userProfile: ref.read(userProfileRemoteDataSourceProvider),
   ),
 );
 

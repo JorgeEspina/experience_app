@@ -6,11 +6,14 @@ import 'package:experience_app/system_design/widgets/cart_badge_icon.dart';
 import 'package:experience_app/system_design/widgets/page_dots_indicator.dart';
 import 'package:experience_app/system_design/widgets/section_header.dart';
 import 'package:experience_app/features/home/presentation/views/home_view.dart';
+import 'package:experience_app/features/auth/presentation/state/auth_providers.dart';
 
 import '../../domain/entities/product.dart';
 import '../state/shop_providers.dart';
 import '../widgets/product_card.dart';
 import 'product_detail_view.dart';
+import 'product_admin_view.dart';
+import 'orders_view.dart';
 import 'cart_view.dart';
 import 'profile_view.dart';
 
@@ -37,6 +40,11 @@ class _ExploreViewState extends ConsumerState<ExploreView> {
   void initState() {
     super.initState();
     _pageController = PageController();
+    // Ensure the catalog is loaded when the shop opens (the controller may
+    // have been created before the user signed in).
+    Future.microtask(
+      () => ref.read(shopControllerProvider.notifier).reloadProducts(),
+    );
   }
 
   @override
@@ -48,6 +56,7 @@ class _ExploreViewState extends ConsumerState<ExploreView> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(shopControllerProvider);
+    final isAdmin = ref.watch(authControllerProvider).user?.isAdmin ?? false;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -60,13 +69,33 @@ class _ExploreViewState extends ConsumerState<ExploreView> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  IconButton(
-                    onPressed: _goBackToMenu,
-                    icon: const Icon(Icons.arrow_back_ios_new, size: 22),
-                    splashRadius: 20,
-                    tooltip: 'Back',
-                  ),
+                  // Only show "back" when there's somewhere to return to
+                  // (e.g. an admin arriving from the Home menu). Clients open
+                  // Explore as the root, so they don't see it.
+                  if (Navigator.of(context).canPop())
+                    IconButton(
+                      onPressed: _goBackToMenu,
+                      icon: const Icon(Icons.arrow_back_ios_new, size: 22),
+                      splashRadius: 20,
+                      tooltip: 'Back',
+                    )
+                  else
+                    const SizedBox(width: 8),
                   const Spacer(),
+                  // Catalog management is only available to admins.
+                  if (isAdmin) ...[
+                    IconButton(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const ProductAdminView(),
+                        ),
+                      ),
+                      icon: const Icon(Icons.inventory_2_outlined, size: 24),
+                      splashRadius: 20,
+                      tooltip: 'Administrar catálogo',
+                    ),
+                    const SizedBox(width: 8),
+                  ],
                   const Icon(Icons.favorite_border, size: 26),
                   const SizedBox(width: 16),
                   CartBadgeIcon(
@@ -188,8 +217,8 @@ class _ExploreViewState extends ConsumerState<ExploreView> {
             label: 'Explore',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.grid_view),
-            label: 'Categories',
+            icon: Icon(Icons.receipt_long_outlined),
+            label: 'Mis pedidos',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.store_outlined),
@@ -228,7 +257,14 @@ class _ExploreViewState extends ConsumerState<ExploreView> {
   void _onBottomNavTap(int index) {
     setState(() => _currentNavIndex = index);
 
-    if (index == 3) {
+    if (index == 1) {
+      // Mis pedidos
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => const OrdersView(),
+        ),
+      );
+    } else if (index == 3) {
       Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (_) => const ProfileView(),
