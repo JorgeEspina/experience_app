@@ -1,0 +1,9 @@
+{
+  "name": "my-worker",
+  "version": "1.0.0",
+  "description": "Background worker with Node.js",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  }
+}
